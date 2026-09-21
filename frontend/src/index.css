@@ -1,0 +1,441 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ==============================================
+   DESIGN TOKENS
+============================================== */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Colors */
+  --bg-base:        #07070f;
+  --bg-surface:     rgba(255, 255, 255, 0.04);
+  --bg-surface-2:   rgba(255, 255, 255, 0.07);
+  --bg-hover:       rgba(255, 255, 255, 0.09);
+
+  --border-subtle:  rgba(255, 255, 255, 0.08);
+  --border-medium:  rgba(255, 255, 255, 0.14);
+  --border-glow:    rgba(124, 58, 237, 0.5);
+
+  --text-primary:   #f1f0ff;
+  --text-secondary: rgba(241, 240, 255, 0.55);
+  --text-muted:     rgba(241, 240, 255, 0.35);
+
+  --accent:         #7c3aed;
+  --accent-light:   #a78bfa;
+  --accent-end:     #4f46e5;
+  --accent-glow:    rgba(124, 58, 237, 0.35);
+
+  --gradient-text-start: #a78bfa;
+  --gradient-text-mid:   #818cf8;
+  --gradient-text-end:   #c084fc;
+
+  --danger:         #ef4444;
+  --danger-soft:    rgba(239, 68, 68, 0.12);
+
+  --success:        #10b981;
+
+  /* Card accent palette (cycling per board) */
+  --card-c1: #7c3aed;
+  --card-c2: #0ea5e9;
+  --card-c3: #f59e0b;
+  --card-c4: #10b981;
+  --card-c5: #ec4899;
+  --card-c6: #f97316;
+
+  /* Priority dark tokens */
+  --priority-low-bg:    rgba(16, 185, 129, 0.12);
+  --priority-low-text:  #34d399;
+  --priority-low-bar:   #10b981;
+
+  --priority-med-bg:    rgba(245, 158, 11, 0.12);
+  --priority-med-text:  #fbbf24;
+  --priority-med-bar:   #f59e0b;
+
+  --priority-high-bg:   rgba(239, 68, 68, 0.12);
+  --priority-high-text: #f87171;
+  --priority-high-bar:  #ef4444;
+
+  /* Shadows */
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md:   0 8px 32px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.25);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+/* ==============================================
+   RESET & BASE
+============================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: block;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+a { text-decoration: none; color: inherit; }
+
+button { font-family: var(--font-sans); cursor: pointer; border: none; background: none; }
+
+/* ==============================================
+   DARK CUSTOM SCROLLBAR
+============================================== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* ==============================================
+   KEYFRAME ANIMATIONS
+============================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.2); }
+  50%       { box-shadow: 0 0 40px rgba(124,58,237,0.5); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes dragFloat {
+  0%, 100% { transform: rotate(2deg) scale(1.04); }
+  50%       { transform: rotate(3deg) scale(1.05); }
+}
+
+/* ==============================================
+   GLASSMORPHISM UTILITIES
+============================================== */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--border-medium);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--border-medium);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.15);
+  transform: translateY(-2px);
+}
+
+/* ==============================================
+   GRADIENT UTILITIES
+============================================== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-text-start), var(--gradient-text-mid), var(--gradient-text-end));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-end));
+}
+
+/* ==============================================
+   SKELETON SHIMMER
+============================================== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ==============================================
+   DARK FORM INPUTS
+============================================== */
+.dark-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.dark-input::placeholder { color: var(--text-muted); }
+
+.dark-input:focus {
+  border-color: var(--accent);
+  background: rgba(124,58,237,0.07);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+}
+
+/* ==============================================
+   KANBAN HORIZONTAL SCROLL
+============================================== */
+.kanban-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 16px;
+  height: 100%;
+}
+
+.kanban-scroll::-webkit-scrollbar { height: 5px; }
+.kanban-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+}
+
+/* ==============================================
+   DASHBOARD UPGRADE STYLES
+   ============================================== */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+.dashboard-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sidebar-hover-item {
+  transition: all 0.2s ease;
+}
+.sidebar-hover-item:hover {
+  border-color: var(--border-medium) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  transform: translateX(2px);
+}
+
+/* ==============================================
+   LIGHT THEME OVERRIDES
+   ============================================== */
+.light {
+  /* Colors */
+  --bg-base:        #f8fafc;
+  --bg-surface:     rgba(0, 0, 0, 0.03);
+  --bg-surface-2:   rgba(0, 0, 0, 0.05);
+  --bg-hover:       rgba(0, 0, 0, 0.07);
+
+  --border-subtle:  rgba(0, 0, 0, 0.07);
+  --border-medium:  rgba(0, 0, 0, 0.12);
+  --border-glow:    rgba(124, 58, 237, 0.3);
+
+  --text-primary:   #0f172a;
+  --text-secondary: rgba(15, 23, 42, 0.65);
+  --text-muted:     rgba(15, 23, 42, 0.45);
+
+  --accent:         #7c3aed;
+  --accent-light:   #6d28d9;
+  --accent-end:     #4f46e5;
+  --accent-glow:    rgba(124, 58, 237, 0.12);
+
+  --gradient-text-start: #4f46e5;
+  --gradient-text-mid:   #7c3aed;
+  --gradient-text-end:   #2563eb;
+
+  --danger:         #dc2626;
+  --danger-soft:    rgba(220, 38, 38, 0.08);
+
+  --success:        #16a34a;
+
+  /* Card accent palette for board cards */
+  --card-c1: #6d28d9;
+  --card-c2: #0284c7;
+  --card-c3: #d97706;
+  --card-c4: #059669;
+  --card-c5: #db2777;
+  --card-c6: #ea580c;
+
+  /* Priority light tokens */
+  --priority-low-bg:    rgba(22, 163, 74, 0.08);
+  --priority-low-text:  #16a34a;
+  --priority-low-bar:   #16a34a;
+
+  --priority-med-bg:    rgba(217, 119, 6, 0.08);
+  --priority-med-text:  #d97706;
+  --priority-med-bar:   #d97706;
+
+  --priority-high-bg:   rgba(220, 38, 38, 0.08);
+  --priority-high-text: #dc2626;
+  --priority-high-bar:  #dc2626;
+
+  /* Shadows */
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md:   0 8px 32px rgba(0,0,0,0.06);
+  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.08);
+}
+
+/* Light scrollbar overrides */
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.light .kanban-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Light glass overrides */
+.light .glass {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border-subtle);
+}
+.light .glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border-medium);
+}
+.light .glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border-subtle);
+}
+.light .glass-card:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--border-medium);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 0 1px rgba(124,58,237,0.1);
+}
+
+/* Light form input overrides */
+.light .dark-input {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+.light .dark-input:focus {
+  background: rgba(124, 58, 237, 0.03);
+  border-color: var(--accent);
+}
+.light .dark-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Light sidebar items */
+.light .sidebar-hover-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+.light .sidebar-item {
+  background: rgba(0, 0, 0, 0.01) !important;
+}
+
+/* ==============================================
+   TASK CARD THEMED STYLES
+   ============================================== */
+.task-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+.task-card:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--border-medium) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--priority-glow) !important;
+  transform: translateY(-2px);
+}
+
+
+
+
