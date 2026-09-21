@@ -8,6 +8,10 @@ frontend/.env
 !backend/.env.example
 !frontend/.env.example
 
+# Local In-Depth Study Documentation (Never commit to Git)
+docs/
+/docs/
+
 # Python & Django
 __pycache__/
 *.py[cod]
