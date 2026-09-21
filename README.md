@@ -1,147 +1,162 @@
-# Thunder Kanban
+# Containerized Deployment of a Full Stack Application on AWS Using Terraform and Ansible
 
-A production-grade Kanban board application built with Django REST Framework and React. Manage your tasks with drag-and-drop functionality, JWT authentication, and a clean user interface.
-
----
-
-## Features
-
-- User registration and login with JWT authentication
-- Google OAuth2 (Gmail) Sign-In and auto-registration with Google One Tap support
-- Token rotation and automatic refresh
-- Create, update, and delete boards
-- Create, update, and delete columns
-- Create, update, and delete tasks
-- Drag and drop tasks between columns
-- Task priority levels (low, medium, high)
-- Duplicate boards (maximum 2 copies per board)
-- Duplicate column name validation
-- Task preview modal with full details
-- Responsive design
-- LocalStorage for boards, columns, and tasks data to ensure instant initial loads and reduce API call
+A production-grade, containerized full-stack Kanban board application deployed to AWS using **Terraform** for Infrastructure as Code (IaC), **Ansible** for automated server configuration, and **Docker Compose** with Nginx reverse proxy for container orchestration.
 
 ---
 
-## Tech Stack
+## 🏗️ Architecture Diagram
 
-**Backend:**
-- Python 3.12+
-- Django 5.x
-- Django REST Framework
-- PostgreSQL
-- SimpleJWT for authentication
-- google-auth-library (for Google token verification)
-- drf-spectacular for API documentation
+```mermaid
+graph TD
+    Client["Client Web Browser"] -->|Port 80 HTTP| IGW["AWS Internet Gateway"]
+    IGW --> VPC["Custom AWS VPC (10.0.0.0/16)"]
+    VPC --> Subnet["Public Subnet (10.0.0.0/24)"]
+    Subnet --> SG["Security Group (22, 80)"]
+    SG --> EC2["EC2 Ubuntu 22.04 Instance"]
 
-**Frontend:**
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- @react-oauth/google (Google Identity Services integration)
-- Zustand for state management
-- dnd-kit for drag and drop
-- React Hook Form with Zod validation
-- Axios for API requests
+    subgraph DockerHost["Docker Compose Environment (EC2)"]
+        Nginx["Nginx Reverse Proxy (:80)"]
+        Frontend["React + Vite Frontend Container"]
+        Backend["Django REST Framework Gunicorn (:8000)"]
+        DB[("PostgreSQL 16 Database Container (:5432)")]
+        Vol[("Docker Volume: postgres_data")]
 
----
-
-## Live Demo
-
-> Frontend: https://thunder-kanban.vercel.app/
-> Backend: https://thunder-kanban-api.onrender.com/api/docs/ OR https://thunder-kanban-api.onrender.com/api/redoc/
+        Nginx -->|/ | Frontend
+        Nginx -->|/api/ & /admin/| Backend
+        Backend -->|Internal TCP| DB
+        DB --- Vol
+    end
+```
 
 ---
 
+## 📦 Tech Stack & DevOps Toolchain
 
-## Getting Started
+| Layer | Technologies Used |
+| :--- | :--- |
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Zustand, @dnd-kit |
+| **Backend** | Python 3.12, Django 6.x, Django REST Framework, Gunicorn, SimpleJWT |
+| **Database** | PostgreSQL 16 (persisted via Docker Named Volume) |
+| **Reverse Proxy** | Nginx (Alpine) handling port 80 routing, static caching, gzip |
+| **Containerization** | Docker, Multi-Stage Builds, Docker Compose |
+| **Infrastructure as Code** | Terraform (AWS VPC, Subnet, IGW, Route Tables, Security Group, EC2) |
+| **Configuration Management**| Ansible (Automated Docker installation, git clone, env setup, stack run) |
+| **CI/CD** | GitHub Actions (Lint, test, container validation, automated deploy) |
 
-### Prerequisites
+---
 
-- Python 3.12 or higher
-- Node.js 18 or higher
-- PostgreSQL 14 or higher
+## 🚀 Quickstart: Local Deployment with Docker Compose
 
-### Backend Setup
-
-1. Clone the repository
+Run the entire full-stack application on your local machine with a single command:
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/riches17atom/Kanban-Thunder.git
 cd Kanban-Thunder
-cd backend
+
+# 2. Start all services (Database, Backend, Frontend, Nginx)
+docker compose up -d --build
+
+# 3. Check container status
+docker compose ps
 ```
 
-2. Create a virtual environment and activate it
-```bash
-python -m venv venv
-source venv/bin/activate  
-```
-
-3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-4. Create a .env file in the backend directory
-```bash
-DEBUG=True
-SECRET_KEY=your-secret-key-here
-ALLOWED_HOSTS=127.0.0.1,localhost
-
-DB_NAME=thunder_db
-DB_USER=postgres
-DB_PASSWORD=your-database-password
-DB_HOST=localhost
-DB_PORT=5432
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-```
-
-7. Set the PostgreSQL Database
-
-8. Run Migrations
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-9. Start the development server
-```bash
-python manage.py runserver
-```
-The backend will be running at http://localhost:8000
-
-
-### Frontend Setup
-
-1. Open a new terminal and navigate to the frontend directory
-```bash
-cd frontend
-```
-
-2. Install dependencies
-```bash
-npm install
-```
-
-3. Create .env file in the frontend 
-```bash
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-```
-
-4. Start the development server
-```bash
-npm run dev
-```
-The frontend will be running at http://localhost:5173
-
-
-## API Documentation
-
-| Documentation | URL |
-|---------------|-----|
-| Swagger UI | http://localhost:8000/api/v1/docs |
-| ReDoc | http://localhost:8000/api/v1/redoc |
+- **Web Application**: Visit [http://localhost](http://localhost)
+- **Interactive Swagger Docs**: Visit [http://localhost/api/v1/docs](http://localhost/api/v1/docs)
+- **Stop services**: `docker compose down`
 
 ---
+
+## ☁️ Production Deployment on AWS
+
+### Prerequisites
+- [Terraform >= 1.5](https://developer.hashicorp.com/terraform/install)
+- [Ansible >= 2.14](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- AWS Account configured via `aws configure`
+- Local SSH Key Pair (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/kanban_aws_key`)
+
+---
+
+### Step 1: Provision Infrastructure with Terraform
+
+```bash
+cd terraform
+
+# Initialize provider plugins
+terraform init
+
+# Review execution plan
+terraform plan
+
+# Provision AWS resources (VPC, Subnet, Security Group, EC2)
+terraform apply -auto-approve
+```
+
+Terraform will display the public IP and SSH command:
+```text
+Outputs:
+instance_public_ip       = "13.233.54.120"
+application_url          = "http://13.233.54.120"
+api_documentation_url    = "http://13.233.54.120/api/v1/docs"
+ansible_inventory_entry  = "kanban_server ansible_host=13.233.54.120 ansible_user=ubuntu ..."
+```
+
+---
+
+### Step 2: Configure Server & Deploy with Ansible
+
+```bash
+cd ../ansible
+
+# 1. Create inventory.ini using the IP output by Terraform
+cp inventory.ini.example inventory.ini
+# Edit inventory.ini and paste your EC2 public IP
+
+# 2. Run the deployment playbook
+ansible-playbook -i inventory.ini playbook.yml
+```
+
+**What Ansible Automates:**
+1. Updates package cache and installs prerequisites.
+2. Installs Docker Engine, containerd, and Docker Compose plugin.
+3. Clones the project repository to `/home/ubuntu/app`.
+4. Injects backend and frontend environment files.
+5. Executes `docker compose up -d --build`.
+6. Waits for healthy response on port 80.
+
+---
+
+### Step 3: Verify the Live Deployment
+
+1. Open your browser and navigate to `http://<EC2_PUBLIC_IP>`.
+2. Register a new user account or log in.
+3. Create Kanban boards, add custom columns, and drag-and-drop tasks.
+4. Verify Swagger API documentation at `http://<EC2_PUBLIC_IP>/api/v1/docs`.
+
+---
+
+### Step 4: Destroy Infrastructure to Avoid Costs
+
+When testing or evaluation is complete, tear down all AWS resources:
+
+```bash
+cd terraform
+terraform destroy -auto-approve
+```
+
+---
+
+## 📋 Deliverables Summary
+
+- [x] **Architecture Diagram**: End-to-end traffic flow and container layout.
+- [x] **Terraform Code** (`terraform/`): Modular AWS VPC, Subnet, IGW, Route Table, Security Group, and EC2.
+- [x] **Ansible Automation** (`ansible/`): Idempotent playbook configuring Docker, environment variables, and stack startup.
+- [x] **Docker Compose Configuration** (`docker-compose.yml`): Multi-container orchestration with PostgreSQL volume persistence.
+- [x] **Nginx Reverse Proxy** (`nginx/nginx.conf`): Unified port 80 routing without CORS issues.
+- [x] **CI/CD Pipeline** (`.github/workflows/deploy.yml`): Automated lint, build, and container validation.
+- [x] **Application Source Code**: Django REST Framework backend and React TypeScript frontend.
+
+---
+
+## 📄 License
+This project is open-source under the MIT License.
