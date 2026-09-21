@@ -1,0 +1,15 @@
+# Deployment Variables for Kanban Thunder
+repo_url: "https://github.com/riches17atom/Kanban-Thunder.git"
+repo_branch: "main"
+app_dir: "/home/ubuntu/app"
+app_user: "ubuntu"
+
+# Application Environment Variables
+django_debug: "False"
+django_secret_key: "django-insecure-prod-k@nb@n-thund3r-s3cr3t-k3y-deployed-with-ansible!"
+django_allowed_hosts: "*"
+db_name: "thunder_db"
+db_user: "postgres"
+db_password: "supersecurepostgrespassword123!"
+google_client_id: ""
+cors_allowed_origins: "http://localhost,http://127.0.0.1"

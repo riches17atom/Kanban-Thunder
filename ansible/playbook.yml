@@ -1,0 +1,148 @@
+---
+- name: Automate Docker Installation and Deploy Full Stack Kanban App
+  hosts: webservers
+  become: yes
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Wait for system to become reachable over SSH
+      wait_for_connection:
+        timeout: 180
+
+    - name: Gather facts
+      setup:
+
+    - name: Update APT package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required system packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - git
+          - python3-pip
+          - software-properties-common
+        state: present
+
+    - name: Create directory for Docker APT keyrings
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Docker official GPG key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker official APT repository
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Install Docker Engine and Docker Compose Plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running and enabled on boot
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: "{{ app_user }}"
+        groups: docker
+        append: yes
+
+    - name: Ensure application directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Clone or pull latest application repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: "{{ repo_branch }}"
+        force: yes
+      become_user: "{{ app_user }}"
+
+    - name: Configure backend environment file (.env)
+      copy:
+        dest: "{{ app_dir }}/backend/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
+        content: |
+          DEBUG={{ django_debug }}
+          SECRET_KEY={{ django_secret_key }}
+          ALLOWED_HOSTS={{ django_allowed_hosts }}
+          DB_NAME={{ db_name }}
+          DB_USER={{ db_user }}
+          DB_PASSWORD={{ db_password }}
+          DB_HOST=db
+          DB_PORT=5432
+          GOOGLE_CLIENT_ID={{ google_client_id }}
+          CORS_ALLOWED_ORIGINS={{ cors_allowed_origins }}
+
+    - name: Configure frontend environment file (.env)
+      copy:
+        dest: "{{ app_dir }}/frontend/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
+        content: |
+          VITE_API_BASE_URL=/api/v1
+          VITE_GOOGLE_CLIENT_ID={{ google_client_id }}
+
+    - name: Stop existing Docker Compose stack (if running)
+      command: docker compose down
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
+      ignore_errors: yes
+
+    - name: Build and start multi-container application stack
+      command: docker compose up -d --build
+      args:
+        chdir: "{{ app_dir }}"
+      become_user: "{{ app_user }}"
+
+    - name: Pause 15 seconds to allow database and migrations to complete
+      pause:
+        seconds: 15
+
+    - name: Verify application is responding on HTTP port 80
+      uri:
+        url: "http://localhost/"
+        status_code: 200
+        timeout: 30
+      register: app_health
+      until: app_health.status == 200
+      retries: 6
+      delay: 5
+
+    - name: Display deployment success message
+      debug:
+        msg: "Thunder Kanban is successfully deployed and running on http://{{ ansible_host }}!"
