@@ -1,0 +1,19 @@
+# AWS Region Configuration
+# Use "us-east-1" for AWS Academy / Learner Lab, or "ap-south-1" for personal Mumbai region
+aws_region = "us-east-1"
+
+# Project naming tag prefix
+project_name = "kanban-thunder"
+
+# Networking Configuration
+vpc_cidr           = "10.0.0.0/16"
+public_subnet_cidr = "10.0.1.0/24"
+
+# Compute Instance Configuration
+# t3.small (2 vCPU, 2GB RAM) recommended for building fullstack containers
+# t2.micro or t3.micro can be used for strict free-tier limits
+instance_type    = "t3.small"
+root_volume_size = 25
+
+# SSH Public Key path (generated locally at ~/.ssh/kanban_aws_key.pub)
+public_key_path = "~/.ssh/kanban_aws_key.pub"
