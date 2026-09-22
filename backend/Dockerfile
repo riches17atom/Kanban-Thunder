@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install system dependencies for PostgreSQL and build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+    build-essential \
     libpq-dev \
     curl \
     netcat-openbsd \
