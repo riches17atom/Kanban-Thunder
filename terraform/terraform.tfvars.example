@@ -17,3 +17,6 @@ root_volume_size = 25
 
 # SSH Public Key path (generated locally at ~/.ssh/kanban_aws_key.pub)
 public_key_path = "~/.ssh/kanban_aws_key.pub"
+
+# Optional explicit AMI ID (leave commented/empty to dynamically discover latest Ubuntu 22.04 LTS)
+# ami_id = ""

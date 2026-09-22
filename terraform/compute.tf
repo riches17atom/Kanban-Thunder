@@ -1,5 +1,6 @@
-# Query latest official Ubuntu 22.04 LTS AMI
+# Query latest official Ubuntu 22.04 LTS AMI if not explicitly specified
 data "aws_ami" "ubuntu" {
+  count       = var.ami_id == "" ? 1 : 0
   most_recent = true
 
   filter {
@@ -27,7 +28,7 @@ resource "aws_key_pair" "deployer" {
 
 # Provision EC2 Ubuntu Instance inside the Public Subnet
 resource "aws_instance" "web" {
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu[0].id
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.web_sg.id]
