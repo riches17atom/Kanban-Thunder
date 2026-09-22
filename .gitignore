@@ -79,3 +79,11 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!terraform.tfvars.example
+
+# Ansible local inventory
+ansible/inventory.ini
+!ansible/inventory.ini.example
