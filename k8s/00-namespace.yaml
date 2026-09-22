@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kanban-thunder
+  labels:
+    app.kubernetes.io/name: kanban-thunder
+    app.kubernetes.io/part-of: kanban-platform

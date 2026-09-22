@@ -44,6 +44,10 @@ jobs:
         run: |
           docker compose config
 
+      - name: Validate Kubernetes Manifests
+        run: |
+          kubectl kustomize k8s/ > /dev/null
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:

@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kanban-ingress
+  namespace: kanban-thunder
+  labels:
+    app.kubernetes.io/name: kanban-thunder
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+spec:
+  rules:
+    - http:
+        paths:
+          # Backend API and Admin endpoints routed to Django
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: kanban-backend-service
+                port:
+                  number: 8000
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: kanban-backend-service
+                port:
+                  number: 8000
+          # Frontend static UI routed to React
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kanban-frontend-service
+                port:
+                  number: 80
