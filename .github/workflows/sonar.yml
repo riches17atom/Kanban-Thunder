@@ -18,7 +18,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check SonarQube Secrets
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ] || [ -z "${{ secrets.SONAR_HOST_URL }}" ]; then
+            echo "::warning::SONAR_TOKEN or SONAR_HOST_URL is not set in GitHub Repository Secrets. Skipping scan until secrets are added in Settings -> Secrets and variables -> Actions."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run SonarQube Scanner
+        if: steps.check_secrets.outputs.configured == 'true'
         uses: sonarsource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
