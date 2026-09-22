@@ -39,3 +39,9 @@ variable "root_volume_size" {
   type        = number
   default     = 25
 }
+
+variable "ami_id" {
+  description = "Optional explicit AMI ID. If empty, latest official Ubuntu 22.04 LTS AMI is dynamically discovered."
+  type        = string
+  default     = ""
+}

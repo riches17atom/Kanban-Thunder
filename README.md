@@ -39,9 +39,10 @@ graph TD
 | **Database** | PostgreSQL 16 (persisted via Docker Named Volume) |
 | **Reverse Proxy** | Nginx (Alpine) handling port 80 routing, static caching, gzip |
 | **Containerization** | Docker, Multi-Stage Builds, Docker Compose |
+| **Kubernetes (K8s)** | Manifests, StatefulSet, Deployments, Ingress, HPA, Kustomize |
 | **Infrastructure as Code** | Terraform (AWS VPC, Subnet, IGW, Route Tables, Security Group, EC2) |
 | **Configuration Management**| Ansible (Automated Docker installation, git clone, env setup, stack run) |
-| **CI/CD** | GitHub Actions (Lint, test, container validation, automated deploy) |
+| **CI/CD** | GitHub Actions (Lint, test, container validation, k8s validation, automated deploy) |
 
 ---
 
@@ -146,14 +147,46 @@ terraform destroy -auto-approve
 
 ---
 
+## ☸️ Kubernetes (K8s) Deployment Guide
+
+For enterprise multi-node clusters (Minikube, K3s, Docker Desktop, or AWS EKS), production manifests are organized under [`k8s/`](./k8s):
+
+### 1. Deploy the Entire Stack via Kustomize:
+```bash
+kubectl apply -k k8s/
+```
+
+### 2. Verify Workloads:
+```bash
+# Check namespace resources
+kubectl get all -n kanban-thunder
+
+# Check PVC storage binding
+kubectl get pvc -n kanban-thunder
+```
+
+### 3. Horizontal Pod Autoscaling (HPA):
+```bash
+# View active autoscalers
+kubectl get hpa -n kanban-thunder
+```
+
+### 4. Delete the Stack:
+```bash
+kubectl delete -k k8s/
+```
+
+---
+
 ## 📋 Deliverables Summary
 
 - [x] **Architecture Diagram**: End-to-end traffic flow and container layout.
 - [x] **Terraform Code** (`terraform/`): Modular AWS VPC, Subnet, IGW, Route Table, Security Group, and EC2.
 - [x] **Ansible Automation** (`ansible/`): Idempotent playbook configuring Docker, environment variables, and stack startup.
 - [x] **Docker Compose Configuration** (`docker-compose.yml`): Multi-container orchestration with PostgreSQL volume persistence.
+- [x] **Kubernetes Suite** (`k8s/`): Production manifests with StatefulSet, Deployments, Ingress, HPA, and Kustomize.
 - [x] **Nginx Reverse Proxy** (`nginx/nginx.conf`): Unified port 80 routing without CORS issues.
-- [x] **CI/CD Pipeline** (`.github/workflows/deploy.yml`): Automated lint, build, and container validation.
+- [x] **CI/CD Pipeline** (`.github/workflows/deploy.yml`): Automated lint, build, Docker, K8s, and Terraform validation.
 - [x] **Application Source Code**: Django REST Framework backend and React TypeScript frontend.
 
 ---
