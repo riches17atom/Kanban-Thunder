@@ -187,6 +187,7 @@ kubectl delete -k k8s/
 - [x] **Kubernetes Suite** (`k8s/`): Production manifests with StatefulSet, Deployments, Ingress, HPA, and Kustomize.
 - [x] **Nginx Reverse Proxy** (`nginx/nginx.conf`): Unified port 80 routing without CORS issues.
 - [x] **CI/CD Pipeline** (`.github/workflows/deploy.yml`): Automated lint, build, Docker, K8s, and Terraform validation.
+- [x] **SonarQube Quality & Security Scan** (`.github/workflows/sonar.yml`): Automated analysis on push/PR to `main` with manual dispatch support.
 - [x] **Application Source Code**: Django REST Framework backend and React TypeScript frontend.
 
 ---
